@@ -1,5 +1,5 @@
 <!doctype html>
-<title>{% block title %}{% endblock %} - Flaskr</title>
+<title>{% block title %}{% endblock %} Game Recommendation System</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -8,16 +8,22 @@
     <div class="full-body-container">
         <div class="top-text">
             <div class="google-colors">
-                <h1 id="google-c">C</h1>
-                <h1 id="google-s">S</h1>
-                <h1 id="google-4">4</h1>
-                <h1 id="google-3">3</h1>
-                <h1 id="google-0-1">0</h1>
-                <h1 id="google-0-2">0</h1>
+                <h1 id="google-c">GAMERECS</h1>
             </div>
-            <div class="input-box" onclick="sendFocus()">
-                <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                <input placeholder="Search for a Keeping up with the Kardashians episode" id="filter-text-val" onkeyup="filterText()">
+            <div id="inputs">
+                <div class="input-box" onclick="sendFocus()">
+                    <img src="{{ url_for('static', filename='images/mag.png') }}" />
+                    <input placeholder="Input a game that you like" id="filter-text-val" onkeyup="filterText()">
+                </div>
+                <!-- <div class="genre-box">
+                    <select class="genre-dropdown" name="genres" id="genres" onChange="filterText()">
+                        <option value="" disabled selected hidden>Select a genre of interest</option>
+                        <option value="Adventure">Adventure</option>
+                        <option value="Brawler">Brawler</option>
+                        <option value="Platform">Platform</option>
+                        <option value="RPG">RPG</option>
+                    </select>
+                </div> -->
             </div>
         </div>
         <div id="answer-box">
