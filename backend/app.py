@@ -3,6 +3,7 @@ import os
 from flask import Flask, render_template, request
 from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
+import re
 
 # ROOT_PATH for linking with all your files.
 # Feel free to use a config.py or settings.py with a global export variable
@@ -32,11 +33,31 @@ CORS(app)
 # Load games JSON file
 f = open('games.json')
 games = json.load(f)
+games_genre_dict = dict()
 
+for game in games:
+    games_genre_dict[game["Title"]] = re.findall(r"'([\w\s]+)'", game["Genres"])
+
+def jaccard_similarity(s1, s2):
+    if len(s1) + len(s2) == 0:
+        return 0
+    numerator = s1.intersection(s2)
+    denominator = s1.union(s2)
+    return len(numerator) / len(denominator)
 
 def json_search(game_title):
     print(game_title)
-    print(games)
+    title_results = games_genre_dict.get(game_title, None)
+    results_unranked = list()
+    if title_results == None:
+        return "Game not found"
+    for k, v in games_genre_dict.items():
+        if k != game_title:
+            score = jaccard_similarity(set(title_results), set(v))
+            results_unranked.append((score, k))
+    results = sorted(results_unranked, key=lambda x: x[0], reverse=True)
+    print(results)
+    return results
 
 
 # def sql_search(episode):
