@@ -13,7 +13,7 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 # Don't worry about the deployment credentials, those are fixed
 # You can use a different DB name if you want to
 MYSQL_USER = "root"
-MYSQL_USER_PASSWORD = "twitchyrecs"
+MYSQL_USER_PASSWORD = "spencer98"
 MYSQL_PORT = 3306
 MYSQL_DATABASE = "video_games"
 
@@ -31,12 +31,12 @@ CORS(app)
 # there's a much better and cleaner way to do this
 
 # Load games JSON file
-f = open('games.json')
+f = open(os.path.join(os.environ['ROOT_PATH'],'games.json'))
 games = json.load(f)
-games_genre_dict = dict()
-
+games_genre_dict = {}
 for game in games:
-    games_genre_dict[game["Title"]] = re.findall(r"'([\w\s]+)'", game["Genres"])
+    games_genre_dict[game["Title"]] = re.findall(r"'([\w\s]+)'", game["Genres"] if type(game["Genres"]) == str else '')
+
 
 def jaccard_similarity(s1, s2):
     if len(s1) + len(s2) == 0:
@@ -58,7 +58,6 @@ def json_search(game_title):
     results = sorted(results_unranked, key=lambda x: x[0], reverse=True)
     print(results)
     return results
-
 
 # def sql_search(episode):
 #     query_sql = f"""SELECT * FROM episodes WHERE LOWER( title ) LIKE '%%{episode.lower()}%%' limit 10"""
