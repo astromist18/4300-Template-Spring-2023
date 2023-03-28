@@ -13,7 +13,7 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 # Don't worry about the deployment credentials, those are fixed
 # You can use a different DB name if you want to
 MYSQL_USER = "root"
-MYSQL_USER_PASSWORD = "twitchyrecs"
+MYSQL_USER_PASSWORD = "twitchrecs"
 MYSQL_PORT = 3306
 MYSQL_DATABASE = "video_games"
 
@@ -50,6 +50,7 @@ def json_search(game_title):
     title_results = games_genre_dict.get(game_title, None)
     results_unranked = list()
     if title_results == None:
+        print("Game not found")
         return "Game not found"
     for k, v in games_genre_dict.items():
         if k != game_title:
@@ -74,7 +75,7 @@ def home():
 
 @ app.route("/games")
 def games_search():
-    game_name = request.args.get("game_title")
+    game_name = request.args.get("game_title").capitalize()
     return json_search(game_name)
 
 
