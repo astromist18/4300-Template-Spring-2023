@@ -28,8 +28,8 @@ services:
         environment:
                 MYSQL_USER: admin
                 MYSQL_PASSWORD: admin
-                MYSQL_DATABASE: kardashiandb
-                MYSQL_ROOT_PASSWORD: admin
+                MYSQL_DATABASE: video_games
+                MYSQL_ROOT_PASSWORD: twitchrecs
         volumes:
                 - ./init.sql:/docker-entrypoint-initdb.d/init.sql
         networks:
