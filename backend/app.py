@@ -46,7 +46,6 @@ def jaccard_similarity(s1, s2):
     return len(numerator) / len(denominator)
 
 def json_search(game_title):
-    print(game_title)
     title_results = games_genre_dict.get(game_title, None)
     results_unranked = list()
     if title_results == None:
@@ -57,8 +56,8 @@ def json_search(game_title):
             score = jaccard_similarity(set(title_results), set(v))
             results_unranked.append((score, k))
     results = sorted(results_unranked, key=lambda x: x[0], reverse=True)
-    print(results)
-    return results
+    games = [x[1] for x in results]
+    return games
 
 # def sql_search(episode):
 #     query_sql = f"""SELECT * FROM episodes WHERE LOWER( title ) LIKE '%%{episode.lower()}%%' limit 10"""
@@ -69,14 +68,25 @@ def json_search(game_title):
 
 @ app.route("/")
 def home():
-    return render_template('base.html', title="sample html")
+    body = request.args.get("game_name")
+    sim = json_search(body)
+    most_sim = []
+    for i in range(0, 10):
+        most_sim.append(sim[i])
+    if (sim == "Game not found"):
+        most_sim = "No similar games found"
+        game = ""
+    else:
+        most_sim = sorted(most_sim, reverse=True)
+        game = "Your game: " + body
+    return render_template('base.html', title="sample html", game=game, similarity=most_sim)
 
 
-@ app.route("/games")
+@ app.route("/games/", methods=["POST"])
 def games_search():
-    game_name = request.args.get("game_title").capitalize()
+    body = json.loads(request.data)
+    game_name = body["game_title"].capitalize()
     return json_search(game_name)
-
 
 # @ app.route("/episodes")
 # def episodes_search():

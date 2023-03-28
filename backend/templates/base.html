@@ -5,6 +5,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
     rel="stylesheet">
+    
 
 <body>
     <div class="full-body-container">
@@ -13,10 +14,14 @@
                 <h1 id="google-c">GAMERECS</h1>
             </div>
             <div id="inputs">
-                <div class="input-box" onclick="sendFocus()">
-                    <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                    <input placeholder="Input a game that you like" id="filter-text-val" onkeyup="filterText()">
-                </div>
+                <!-- <div class="input-box" onclick="sendFocus()"> -->
+                    <form>
+                        <input class="input-box-text" placeholder="Input a game you like" onkeyup="/games/" type="text" id="game_name" name="game_name"><br><br>
+                        <input class="input-box-submit" type="submit" value="Submit" onsubmit="return false;" onclick="renderData()">
+                    </form>
+                    
+                <!-- </div> -->
+                
                 <!-- <div class="genre-box">
                     <select class="genre-dropdown" name="genres" id="genres" onChange="filterText()">
                         <option value="" disabled selected hidden>Select a genre of interest</option>
@@ -29,11 +34,28 @@
             </div>
         </div>
         <div id="answer-box">
-
+            {{similarity}}
         </div>
     </div>
 
     <script>
+        function gameRecTemplate(gameName) {
+            return `<div class=''>
+                <h3 class='episode-title'>${title}</h3>
+                <p class='episode-desc'>${titleDesc}</p>
+            </div>`
+        }
+
+        function renderData() {
+            console.log("Here")
+            let tempDiv = document.createElement("div")
+            '{{similarity}}'.forEach(row => {
+                tempDiv.innerHTML = gameRecTemplate(row)
+                document.getElementById("answer-box").appendChild(tempDiv)
+            })
+        }
+
+
 
         function answerBoxTemplate(title, titleDesc) {
             return `<div class=''>

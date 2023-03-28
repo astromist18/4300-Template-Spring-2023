@@ -54,7 +54,6 @@
     border:1px solid black;
     display: flex;
     align-items: center;
-    margin-top: 10px;
     margin-right: 10px;
     padding:12px;
     width: 300px;
@@ -92,13 +91,26 @@
     align-items: center;
 }
 
-.input-box input{
+.input-box-text {
+    display: flex;
+    align-items: center;
     width: 100%;
     margin-left: 10px;
     font-size: 16px;
     border: none;
     outline: 0;
 }
+
+.input-box-submit {
+    display: flex;
+    align-items: center;
+    width: 35%;
+    margin-left: 10px;
+    font-size: 16px;
+    border: none;
+    outline: 0;
+}
+
 
 #answer-box{
     width: 700px;
