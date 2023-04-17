@@ -138,7 +138,6 @@ def json_search(game_title):
     title_results = games_genre_dict.get(game_title, None)
     results_unranked = list()
     if title_results == None:
-        print("Game not found")
         return "Game not found"
     for k, v in games_genre_dict.items():
         if k != game_title:
@@ -194,7 +193,7 @@ def json_search(game_title):
 
 @ app.route("/")
 def home():
-    body = request.args.get("game_name")
+    body = request.args.get("game_title")
     sim = json_search(body)
     most_sim = []
     for i in range(0, 10):
@@ -208,11 +207,11 @@ def home():
     return render_template('base.html', title="sample html", game=game, similarity=most_sim)
 
 
-@ app.route("/games/", methods=["POST"])
+@app.route("/games/")
 def games_search():
-    body = json.loads(request.data)
+    body = request.args
     game_name = body["game_title"].capitalize()
-    return json_search(game_name)
+    return json.dumps(json_search(game_name))
 
 
 # @ app.route("/episodes")

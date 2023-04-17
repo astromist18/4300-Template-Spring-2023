@@ -19,9 +19,9 @@
                 <h4 id="info">Trying to find a new game to play? Look no further! Enter in the information below to find your next favorite game!</h4>
             </div>
             <div id="inputs">
-                <div class="input-box" onclick="sendFocus()">
+                <div class="input-box">
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                    <input placeholder="Input a game that you like" id="filter-title" onkeyup="filterText()">
+                    <input placeholder="Input a game that you like" id="filter-title">
                 </div>
                 <div class="genre-box">
                     <select class="genre-dropdown" name="genres" id="genres" onChange="filterText()">
@@ -40,6 +40,7 @@
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
                     <input placeholder="Minimum players" id="filter-popularity" onkeyup="filterText()">
                 </div>
+                <button id="search" class="search-button" type="button" onclick="filterText()">Search</button>
             </div>
         </div>
         <div id="answer-box">
@@ -49,30 +50,37 @@
 
     <script>
 
-        function answerBoxTemplate(title, titleDesc) {
+        function answerBoxTemplate(title) {
             return `<div class=''>
-                <h3 class='episode-title'>${title}</h3>
-                <p class='episode-desc'>${titleDesc}</p>
+                <h3 class='game-title'>${title}</h3>
             </div>`
         }
 
-        function sendFocus() {
-            document.getElementById('filter-text-val').focus()
+        function enterEvent() {
+            document.getElementById("filter-title").addEventListener("keydown", function(event) {
+                event.preventDefault();
+                if (event.keyCode === 13) {
+                    document.getElementById("search").click();
+                }
+            });
         }
 
         function filterText() {
             document.getElementById("answer-box").innerHTML = ""
-            console.log(document.getElementById("filter-text-val").value)
-            fetch("/games?" + new URLSearchParams({ game_title: document.getElementById("filter-text-val").value }).toString())
+            console.log(document.getElementById("filter-title").value)
+            fetch("/games?" + new URLSearchParams({ game_title: document.getElementById("filter-title").value }).toString())
                 .then((response) => response.json())
-                .then((data) => data.forEach(row => {
+                .then((data) => 
+                    {if (data !== "Game not found") {
+                        for (let i = 0; i < 10; i++) {
+                            let tempDiv = document.createElement("div")
+                            tempDiv.innerHTML = answerBoxTemplate(data[i])
+                            document.getElementById("answer-box").appendChild(tempDiv)
+                        }
+                    }
+                   })
 
-                    let tempDiv = document.createElement("div")
-                    tempDiv.innerHTML = answerBoxTemplate(row.title, row.descr)
-                    document.getElementById("answer-box").appendChild(tempDiv)
-                }));
-
-        }
+                }
 
     </script>
 </body>
