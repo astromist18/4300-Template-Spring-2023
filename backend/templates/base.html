@@ -5,19 +5,25 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
     rel="stylesheet">
+<meta charset="UTF-8">
 
 <body>
     <div class="full-body-container">
         <div class="top-text">
             <div class="google-colors">
+                <h1 id="emoji-left">&#128126</h1>
                 <h1 id="google-c">GAMERECS</h1>
+                <h1 id="emoji-right">&#128126</h1>
+            </div>
+            <div class="header">
+                <h4 id="info">Trying to find a new game to play? Look no further! Enter in the information below to find your next favorite game!</h4>
             </div>
             <div id="inputs">
                 <div class="input-box" onclick="sendFocus()">
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                    <input placeholder="Input a game that you like" id="filter-text-val" onkeyup="filterText()">
+                    <input placeholder="Input a game that you like" id="filter-title" onkeyup="filterText()">
                 </div>
-                <!-- <div class="genre-box">
+                <div class="genre-box">
                     <select class="genre-dropdown" name="genres" id="genres" onChange="filterText()">
                         <option value="" disabled selected hidden>Select a genre of interest</option>
                         <option value="Adventure">Adventure</option>
@@ -25,7 +31,15 @@
                         <option value="Platform">Platform</option>
                         <option value="RPG">RPG</option>
                     </select>
-                </div> -->
+                </div>
+                <div class="ratings-box" onclick="sendFocus()">
+                    <img src="{{ url_for('static', filename='images/mag.png') }}" />
+                    <input placeholder="Minimum rating" id="filter-rating" onkeyup="filterText()">
+                </div>
+                <div class="popularity-box" onclick="sendFocus()">
+                    <img src="{{ url_for('static', filename='images/mag.png') }}" />
+                    <input placeholder="Minimum players" id="filter-popularity" onkeyup="filterText()">
+                </div>
             </div>
         </div>
         <div id="answer-box">
