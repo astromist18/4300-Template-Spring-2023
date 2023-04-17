@@ -211,6 +211,9 @@ def home():
 def games_search():
     body = request.args
     game_name = body["game_title"].capitalize()
+    game_genre = body["game_genre"].capitalize()
+    game_rating = body["game_rating"]
+    game_players = body["game_players"]
     return json.dumps(json_search(game_name))
 
 

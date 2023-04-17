@@ -8,6 +8,7 @@
 <meta charset="UTF-8">
 
 <body>
+    <script src="data.json"></script>
     <div class="full-body-container">
         <div class="top-text">
             <div class="google-colors">
@@ -24,21 +25,28 @@
                     <input placeholder="Input a game that you like" id="filter-title">
                 </div>
                 <div class="genre-box">
-                    <select class="genre-dropdown" name="genres" id="genres" onChange="filterText()">
+                    <select class="genre-dropdown" name="genres" id="genres">
                         <option value="" disabled selected hidden>Select a genre of interest</option>
                         <option value="Adventure">Adventure</option>
                         <option value="Brawler">Brawler</option>
+                        <option value="Indie">Indie</option>
+                        <option value="Music">Music</option>
                         <option value="Platform">Platform</option>
+                        <option value="Puzzle">Puzzle</option>
                         <option value="RPG">RPG</option>
+                        <option value="Simulator">Simulator</option>
+                        <option value="Shooter">Shooter</option>
+                        <option value="Strategy">Strategy</option>
+                        <option value="Turn">Turn Based Strategy</option>
                     </select>
                 </div>
-                <div class="ratings-box" onclick="sendFocus()">
+                <div class="ratings-box">
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                    <input placeholder="Minimum rating" id="filter-rating" onkeyup="filterText()">
+                    <input placeholder="Minimum rating" id="filter-rating">
                 </div>
-                <div class="popularity-box" onclick="sendFocus()">
+                <div class="popularity-box">
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                    <input placeholder="Minimum players" id="filter-popularity" onkeyup="filterText()">
+                    <input placeholder="Minimum players" id="filter-popularity">
                 </div>
                 <button id="search" class="search-button" type="button" onclick="filterText()">Search</button>
             </div>
@@ -66,7 +74,12 @@
         function filterText() {
             document.getElementById("answer-box").innerHTML = ""
             console.log(document.getElementById("filter-title").value)
-            fetch("/games?" + new URLSearchParams({ game_title: document.getElementById("filter-title").value }).toString())
+            fetch("/games?" + new URLSearchParams(
+                {   game_title: document.getElementById("filter-title").value, 
+                    game_genre: document.getElementById("genres").value,
+                    game_rating: document.getElementById("filter-rating").value,
+                    game_players: document.getElementById("filter-popularity").value                
+                }).toString())
                 .then((response) => response.json())
                 .then((data) => 
                     {if (data !== "Game not found") {
