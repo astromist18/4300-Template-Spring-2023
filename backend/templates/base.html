@@ -43,9 +43,7 @@
                 <button id="search" class="search-button" type="button" onclick="filterText()">Search</button>
             </div>
         </div>
-        <div id="answer-box">
-
-        </div>
+        <div id="answer-box"></div>
     </div>
 
     <script>
@@ -78,6 +76,12 @@
                             document.getElementById("answer-box").appendChild(tempDiv)
                         }
                     }
+                    else {
+                        let tempDiv = document.createElement("div")
+                        tempDiv.innerHTML = answerBoxTemplate("Game not found! Please check the game spelling or enter something else!")
+                        document.getElementById("answer-box").appendChild(tempDiv)
+                    }
+
                    })
 
                 }

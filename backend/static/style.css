@@ -184,10 +184,8 @@
     margin-top:50px; 
 }
 
-.episode-title{
+.game-title{
     font-family: 'Kanit', sans-serif;
+    color: rgb(93, 84, 84);
 }
 
-.episode-desc{
-    font-family: 'Montserrat', sans-serif;
-}
