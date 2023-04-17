@@ -19,18 +19,14 @@ MYSQL_USER_PASSWORD = "twitchrecs"
 MYSQL_PORT = 3306
 MYSQL_DATABASE = "video_games"
 
-mysql_engine = MySQLDatabaseHandler(
-    MYSQL_USER, MYSQL_USER_PASSWORD, MYSQL_PORT, MYSQL_DATABASE)
+# mysql_engine = MySQLDatabaseHandler(
+#     MYSQL_USER, MYSQL_USER_PASSWORD, MYSQL_PORT, MYSQL_DATABASE)
 
 # Path to init.sql file. This file can be replaced with your own file for testing on localhost, but do NOT move the init.sql file
 # mysql_engine.load_file_into_db()
 
 app = Flask(__name__)
 CORS(app)
-
-# Sample search, the LIKE operator in this case is hard-coded,
-# but if you decide to use SQLAlchemy ORM framework,
-# there's a much better and cleaner way to do this
 
 # Load games JSON file
 f = open(os.path.join(os.environ['ROOT_PATH'], 'games.json'), encoding="utf8")
@@ -50,7 +46,8 @@ games_genre_dict = {}
 # no_title_counter = 0
 # duplicate_titles = []
 for game in games:
-    games_genre_dict[game["Title"]] = re.findall(r"'([\w\s]+)'", game["Genres"] if type(game["Genres"]) == str else '')
+    games_genre_dict[game["Title"]] = re.findall(
+        r"'([\w\s]+)'", game["Genres"] if type(game["Genres"]) == str else '')
 
     # game_title_to_index[game["Title"]] = game_counter
     # game_index_to_title[game_counter] = game["Title"]
@@ -62,7 +59,6 @@ for game in games:
     #     duplicate_counter += 1
     #     if game["Title"] == "":
     #         no_title_counter += 1
-
 
     # if type(game['Reviews']) == str:
     #     reviews = re.split('\', \'|\", \"|\", \'|\', \"', game['Reviews'].strip(']['))
@@ -92,12 +88,12 @@ for game in games:
 #     # Code from Assignment 5
 #     game1_idx = input_game_title_to_index[game1]
 #     game2_idx = input_game_title_to_index[game2]
-    
+
 #     q = input_doc_mat[game1_idx]
 #     d = input_doc_mat[game2_idx]
-    
+
 #     sim = np.dot(q, d) / (np.linalg.norm(q) * np.linalg.norm(d))
-    
+
 #     return sim
 
 # def build_game_sims_cos(n_games, game_index_to_title, input_doc_mat, game_title_to_index, input_get_sim_method):
@@ -109,21 +105,21 @@ for game in games:
 #             game2 = game_index_to_title[j]
 #             sim = input_get_sim_method(game1, game2, input_doc_mat, game_title_to_index)
 #             game_sims[i, j] = game_sims[j, i] = sim
-            
+
 #     return game_sims
 
 
 # def get_ranked_games(game, matrix):
 #     # Code from Assignment 5
 #     game_idx = game_title_to_index[game]
-    
+
 #     score_lst = matrix[game_idx]
 #     game_score_lst = [(game_index_to_title[i], s) for i,s in enumerate(score_lst)]
-    
+
 #     game_score_lst = game_score_lst[:game_idx] + game_score_lst[game_idx+1:]
-    
+
 #     game_score_lst = sorted(game_score_lst, key=lambda x: -x[1])
-    
+
 #     return game_score_lst
 
 
@@ -133,6 +129,7 @@ def jaccard_similarity(s1, s2):
     numerator = s1.intersection(s2)
     denominator = s1.union(s2)
     return len(numerator) / len(denominator)
+
 
 def json_search(game_title):
     title_results = games_genre_dict.get(game_title, None)
