@@ -19,18 +19,14 @@ MYSQL_USER_PASSWORD = "twitchrecs"
 MYSQL_PORT = 3306
 MYSQL_DATABASE = "video_games"
 
-mysql_engine = MySQLDatabaseHandler(
-    MYSQL_USER, MYSQL_USER_PASSWORD, MYSQL_PORT, MYSQL_DATABASE)
+# mysql_engine = MySQLDatabaseHandler(
+#     MYSQL_USER, MYSQL_USER_PASSWORD, MYSQL_PORT, MYSQL_DATABASE)
 
 # Path to init.sql file. This file can be replaced with your own file for testing on localhost, but do NOT move the init.sql file
 # mysql_engine.load_file_into_db()
 
 app = Flask(__name__)
 CORS(app)
-
-# Sample search, the LIKE operator in this case is hard-coded,
-# but if you decide to use SQLAlchemy ORM framework,
-# there's a much better and cleaner way to do this
 
 # Load games JSON file
 f = open(os.path.join(os.environ['ROOT_PATH'], 'games.json'), encoding="utf8")
@@ -132,11 +128,11 @@ def jaccard_similarity(s1, s2):
     denominator = s1.union(s2)
     return len(numerator) / len(denominator)
 
+
 def json_search(game_title):
     title_results = games_genre_dict.get(game_title, None)
     results_unranked = list()
     if title_results == None:
-        print("Game not found")
         return "Game not found"
     for k, v in games_genre_dict.items():
         if k != game_title:
@@ -174,10 +170,13 @@ def home():
     return render_template('base.html', title="sample html", game=game, similarity=most_sim)
 
 
-@ app.route("/games/", methods=["POST"])
+@app.route("/games/")
 def games_search():
-    body = json.loads(request.data)
+    body = request.args
     game_name = body["game_title"].capitalize()
-    return cosine_similarity(body)
+    game_genre = body["game_genre"].capitalize()
+    game_rating = body["game_rating"]
+    game_players = body["game_players"]
+    return json.dumps(json_search(game_name))
 
 app.run(debug=True)
