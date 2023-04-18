@@ -10,30 +10,11 @@
     justify-content: start;
     align-items: center;
     flex-direction: column;
+    background-color: rgb(149, 194, 240);
 }
 
 #google-c{
-    color:#4285F4;
-}
-
-#google-s{
-    color:#DB4437;
-}
-
-#google-4{
-    color:	#F4B400;
-}
-
-#google-3{
-    color:	#4285F4;
-}
-
-#google-0-1{
-    color:	#0F9D58;
-}
-
-#google-0-2{
-    color:#DB4437;
+    color:#156dfb;
 }
 
 .google-colors{
@@ -46,6 +27,19 @@
 .google-colors h1{
     margin-bottom: 0;
     margin-right: 3px;
+}
+
+.header {
+    font-family: "Open Sans", sans-serif;
+    color:	#156dfb;
+}
+
+#emoji-left {
+    margin-right: 5px;
+}
+
+#emoji-right {
+    margin-left: 5px;
 }
 
 .input-box{
@@ -68,6 +62,63 @@
     padding:12px;
 }
 
+.ratings-box{
+    float: left;
+    border-radius: 50px;
+    border:1px solid black;
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    margin-right: 10px;
+    padding:12px;
+    width: 150px;
+    padding-right: 12px;
+}
+
+.ratings-box img{
+    height: 20px;
+    width:20px;
+}
+
+.ratings-box input{
+    width: 100%;
+    margin-left: 10px;
+    font-size: 16px;
+    border: none;
+    outline: 0;
+    color: rgb(93, 84, 84);
+    background-color: rgb(149, 194, 240);
+}
+
+.popularity-box{
+    float: left;
+    border-radius: 50px;
+    border:1px solid black;
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    margin-right: 10px;
+    margin-left: 10px;
+    padding:12px;
+    width: 180px;
+    padding-right: 12px;
+}
+
+.popularity-box img{
+    height: 20px;
+    width:20px;
+}
+
+.popularity-box input{
+    width: 100%;
+    margin-left: 10px;
+    font-size: 16px;
+    border: none;
+    outline: 0;
+    color: rgb(93, 84, 84);
+    background-color: rgb(149, 194, 240);
+}
+
 .genre-dropdown {
     border-radius: 50px;
     border:1px solid black;
@@ -78,12 +129,38 @@
     width: 300px;
     padding-right: 12px;
     font-size: 16px;
-    color: gray;
+    color: rgb(93, 84, 84);
+    background-color: rgb(149, 194, 240);
+
 }
+
 
 .input-box img{
     height: 20px;
     width:20px;
+}
+
+.search-button {
+    float: left;
+    border-radius: 50px;
+    border:1px solid black;
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 10px;
+    padding:12px;
+    width: 100px;
+    height: 45px;
+    margin-left: 10px;
+    padding-right: 12px;
+    background-color: rgb(149, 194, 240);
+}
+
+.search-button:hover {
+    background-color:#486ac8;
+    transition: 0.5s;
+    border: 0px;
 }
 
 .top-text{
@@ -93,11 +170,13 @@
 }
 
 .input-box input{
+    color: rgb(93, 84, 84);
     width: 100%;
     margin-left: 10px;
     font-size: 16px;
     border: none;
     outline: 0;
+    background-color: rgb(149, 194, 240);
 }
 
 #answer-box{
@@ -105,10 +184,7 @@
     margin-top:50px; 
 }
 
-.episode-title{
+.game-title{
     font-family: 'Kanit', sans-serif;
-}
-
-.episode-desc{
-    font-family: 'Montserrat', sans-serif;
+    color: rgb(93, 84, 84);
 }
