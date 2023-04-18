@@ -142,7 +142,7 @@ def json_search(game_title):
     games = [x[1] for x in results]
     return games
 
-def cosine_similarity(game_title):
+def cosine_jac_similarity(game_title):
     if game_title not in unique_games:
         return "Input a valid game name"
 
@@ -152,13 +152,13 @@ def cosine_similarity(game_title):
 
     ranked_games = get_ranked_games(game_title, games_sim_cos_jac)
 
-    top_games = [game[0] for game in ranked_games[:5]]
+    top_games = [game[0] for game in ranked_games[:10]]
     return top_games
 
 @ app.route("/")
 def home():
     body = request.args.get("game_name")
-    sim = cosine_similarity(body)
+    sim = cosine_jac_similarity(body)
     most_sim = []
     for i in range(0, 5):
         most_sim.append(sim[i])
@@ -177,6 +177,6 @@ def games_search():
     game_genre = body["game_genre"].capitalize()
     game_rating = body["game_rating"]
     game_players = body["game_players"]
-    return json.dumps(json_search(game_name))
+    return json.dumps(cosine_jac_similarity(game_name))
 
 app.run(debug=True)
