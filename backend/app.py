@@ -144,7 +144,7 @@ def json_search(game_title):
 
 def cosine_jac_similarity(game_title):
     if game_title not in unique_games:
-        return "Input a valid game name"
+        return "Game not found"
 
     doc_by_vocab = create_mat()
 
@@ -162,8 +162,8 @@ def home():
     most_sim = []
     for i in range(0, 5):
         most_sim.append(sim[i])
-    if (sim == "Input a valid game name"):
-        most_sim = "Input a valid game name"
+    if (sim == "Game not found"):
+        most_sim = "This game does not exist in the database"
         game = ""
     else:
         game = "Your game: " + body
@@ -173,10 +173,11 @@ def home():
 @app.route("/games/")
 def games_search():
     body = request.args
-    game_name = body["game_title"].capitalize()
-    game_genre = body["game_genre"].capitalize()
+    game_name = body["game_title"]
+    game_genre = body["game_genre"]
     game_rating = body["game_rating"]
     game_players = body["game_players"]
+
     return json.dumps(cosine_jac_similarity(game_name))
 
-app.run(debug=True)
+# app.run(debug=True)
