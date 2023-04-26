@@ -29,7 +29,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Load games JSON file
-f = open(os.path.join(os.environ['ROOT_PATH'], 'games.json'), encoding="utf8")
+f = open('games.json', encoding="utf8")
 games = json.load(f)
 
 unique_games = {}
