@@ -35,8 +35,10 @@ games = json.load(f)
 unique_games = {}
 
 games_genre_dict = {}
-games_summary_reviews_dict = {}
-games_summary_reviews_tokens_dict = {}
+games_summary_dict = {}
+# games_summary_tokens_dict = {}
+games_reviews_dict = {}
+# games_reviews_tokens_dict = {}
 game_title_to_index = {}
 game_index_to_title = {}
 
@@ -53,29 +55,35 @@ for game in games:
         game_title_to_index[game["Title"]] = unique_game_counter
         game_index_to_title[unique_game_counter] = game["Title"]
 
+        games_summary_dict[game["Title"]] = game["Summary"]
+        # games_summary_tokens_dict[game["Title"]] = tokenize(game["Summary"])
+
         if type(game['Reviews']) == str:
             reviews = re.split('\', \'|\", \"|\", \'|\', \"', game['Reviews'].strip(']['))
-            games_summary_reviews_dict[game["Title"]] = reviews
+            games_reviews_dict[game["Title"]] = reviews
         else:
-            games_summary_reviews_dict[game["Title"]] = game['Reviews']
-        games_summary_reviews_dict[game["Title"]].insert(0, game["Summary"])
+            games_reviews_dict[game["Title"]] = game['Reviews']
 
-        tokens = []
-        for text in games_summary_reviews_dict[game["Title"]]:
-            tokens.append(tokenize(text))
+        # tokens = []
+        # for text in games_reviews_dict[game["Title"]]:
+        #     tokens.append(tokenize(text))
 
-        games_summary_reviews_tokens_dict[game["Title"]] = tokens
+        # games_reviews_tokens_dict[game["Title"]] = tokens
 
-n_feats = 5000
+n_feats = 500
 doc_by_vocab = np.empty([len(unique_games), n_feats])
 
 def build_vectorizer(max_features, stop_words, max_df=0.8, min_df=10, norm='l2'):
     # Code from Assignment 5
     return TfidfVectorizer(max_features=max_features, stop_words=stop_words, max_df = max_df, min_df = min_df, norm = norm)
 
-def create_mat():
+def create_summary_mat():
     tfidf_vec = build_vectorizer(n_feats, "english")
-    return tfidf_vec.fit_transform([' '.join(summary_reviews) for summary_reviews in games_summary_reviews_dict.values()]).toarray()
+    return tfidf_vec.fit_transform([' '.join(summary) for summary in games_summary_dict.values()]).toarray()
+
+def create_reviews_mat():
+    tfidf_vec = build_vectorizer(n_feats, "english")
+    return tfidf_vec.fit_transform([' '.join(reviews) for reviews in games_reviews_dict.values()]).toarray()
 
 def get_cosine_sim(game1, game2, input_doc_mat, input_game_title_to_index):
     # Code from Assignment 5
@@ -146,7 +154,7 @@ def cosine_jac_similarity(game_title):
     if game_title not in unique_games:
         return "Game not found"
 
-    doc_by_vocab = create_mat()
+    doc_by_vocab = create_summary_mat()
 
     games_sim_cos_jac = build_game_sims_cos_jac(len(unique_games), game_index_to_title, doc_by_vocab, game_title_to_index, get_cosine_sim, jaccard_similarity)
 
