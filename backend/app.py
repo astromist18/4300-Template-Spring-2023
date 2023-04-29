@@ -6,6 +6,7 @@ from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
+import pickle
 
 # ROOT_PATH for linking with all your files.
 # Feel free to use a config.py or settings.py with a global export variable
@@ -59,16 +60,17 @@ for game in games:
         # games_summary_tokens_dict[game["Title"]] = tokenize(game["Summary"])
 
         if type(game['Reviews']) == str:
-            reviews = re.split('\', \'|\", \"|\", \'|\', \"', game['Reviews'].strip(']['))
-            games_reviews_dict[game["Title"]] = reviews
+            reviews = re.sub(r'\[|\]', '', game['Reviews'])
+            games_reviews_dict[game["Title"]] = str(reviews)
         else:
-            games_reviews_dict[game["Title"]] = game['Reviews']
+            games_reviews_dict[game["Title"]] = str(game['Reviews'])
 
         # tokens = []
         # for text in games_reviews_dict[game["Title"]]:
         #     tokens.append(tokenize(text))
 
         # games_reviews_tokens_dict[game["Title"]] = tokens
+
 
 n_feats = 500
 doc_by_vocab = np.empty([len(unique_games), n_feats])
@@ -77,13 +79,18 @@ def build_vectorizer(max_features, stop_words, max_df=0.8, min_df=10, norm='l2')
     # Code from Assignment 5
     return TfidfVectorizer(max_features=max_features, stop_words=stop_words, max_df = max_df, min_df = min_df, norm = norm)
 
+
 def create_summary_mat():
     tfidf_vec = build_vectorizer(n_feats, "english")
-    return tfidf_vec.fit_transform([' '.join(summary) for summary in games_summary_dict.values()]).toarray()
+    summary_mat = tfidf_vec.fit_transform([summary for summary in games_summary_dict.values()]).toarray()
+    filename = 'sum_mat.pickle'
+    pickle.dump(summary_mat, open(filename, "wb"))
 
 def create_reviews_mat():
     tfidf_vec = build_vectorizer(n_feats, "english")
-    return tfidf_vec.fit_transform([' '.join(reviews) for reviews in games_reviews_dict.values()]).toarray()
+    reviews_mat = tfidf_vec.fit_transform([reviews for reviews in games_reviews_dict.values()]).toarray()
+    filename = 'review_mat.pickle'
+    pickle.dump(reviews_mat, open(filename, "wb"))
 
 def get_cosine_sim(game1, game2, input_doc_mat, input_game_title_to_index):
     # Code from Assignment 5
@@ -154,9 +161,14 @@ def cosine_jac_similarity(game_title):
     if game_title not in unique_games:
         return "Game not found"
 
-    doc_by_vocab = create_summary_mat()
+    # create_summary_mat()
+    # create_reviews_mat()
+    
 
-    games_sim_cos_jac = build_game_sims_cos_jac(len(unique_games), game_index_to_title, doc_by_vocab, game_title_to_index, get_cosine_sim, jaccard_similarity)
+    sum_mat = pickle.load(open("sum_mat.pickle", "rb"))
+    rev_mat = pickle.load(open("review_mat.pickle", "rb"))
+
+    games_sim_cos_jac = build_game_sims_cos_jac(len(unique_games), game_index_to_title, sum_mat, game_title_to_index, get_cosine_sim, jaccard_similarity)
 
     ranked_games = get_ranked_games(game_title, games_sim_cos_jac)
 
@@ -185,6 +197,8 @@ def games_search():
     game_genre = body["game_genre"]
     game_rating = body["game_rating"]
     game_players = body["game_players"]
+    # don't use filters
+    # get top five features for each result
 
     return json.dumps(cosine_jac_similarity(game_name))
 

@@ -5,7 +5,7 @@
     right:0;
     bottom:0;
     width:100%;
-    height:100%;
+    height:200%;
     display: flex;
     justify-content: start;
     align-items: center;
@@ -53,6 +53,7 @@
     padding:12px;
     width: 300px;
     padding-right: 12px;
+    margin-bottom: 12px;
 }
 
 .genre-box {
@@ -134,7 +135,6 @@
 
 }
 
-
 .input-box img{
     height: 20px;
     width:20px;
@@ -179,9 +179,33 @@
     background-color: rgb(149, 194, 240);
 }
 
-#answer-box{
+.loading-screen {
+    font-family: "Open Sans", sans-serif;
+    color:	#156dfb;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 30px;
+}
+
+.loader {
+    border: 8px solid #a8a7a7; /* Light grey */
+    border-top: 8px solid #102e42; /* Blue */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 2s linear infinite;
+}
+  
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+.answer-box{
     width: 700px;
-    margin-top:50px; 
 }
 
 .game-title{

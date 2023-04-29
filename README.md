@@ -1,5 +1,8 @@
 # 4300-Flask-Template
 
+flask run --host=0.0.0.0 --port=5001 --debugger 
+python3.7 -m pip install -r requirements.txt
+
 ## Contents
 
 - [Summary](#summary)

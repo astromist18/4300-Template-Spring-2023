@@ -51,7 +51,8 @@
                 <button id="search" class="search-button" type="button" onclick="filterText()">Search</button>
             </div>
         </div>
-        <div id="answer-box"></div>
+        <div id="loading-screen" class="loading-screen"></div>
+        <div id="answer-box" class="answer-box"></div>
     </div>
 
     <script>
@@ -73,16 +74,30 @@
         
         function filterText() {
             document.getElementById("answer-box").innerHTML = ""
-            console.log(document.getElementById("filter-title").value)
+            let loader = document.createElement("div")
+            loader.className = "loader"
+            document.getElementById("loading-screen").appendChild(loader)
+            let loaderText = document.createElement("h4")
+            loaderText.textContent = "Loading, please wait"
+            document.getElementById("loading-screen").appendChild(loaderText)
+
             fetch("/games?" + new URLSearchParams(
                 {   game_title: document.getElementById("filter-title").value, 
                     game_genre: document.getElementById("genres").value,
                     game_rating: document.getElementById("filter-rating").value,
                     game_players: document.getElementById("filter-popularity").value                
-                }).toString())
+                }).toString()
+                )
                 .then((response) => response.json())
                 .then((data) => 
-                    {if (data !== "Game not found") {
+                    {
+                    document.getElementById("loading-screen").removeChild(loader)
+                    document.getElementById("loading-screen").removeChild(loaderText)
+                    let resultText = document.createElement("h4")
+                    resultText.textContent = "If you like " + document.getElementById("filter-title").value + ", check out these games:"
+                    document.getElementById("loading-screen").appendChild(resultText)
+
+                    if (data !== "Game not found") {
                          for (let i = 0; i < 10; i++) {
                             let tempDiv = document.createElement("div")
                             tempDiv.innerHTML = answerBoxTemplate(data[i])
