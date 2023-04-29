@@ -7,6 +7,7 @@ import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 import pickle
+from textblob import TextBlob
 
 # ROOT_PATH for linking with all your files.
 # Feel free to use a config.py or settings.py with a global export variable
@@ -40,6 +41,7 @@ games_summary_dict = {}
 games_reviews_dict = {}
 games_rating_dict = {}
 games_players_dict = {}
+games_sentiment_dict = {}
 game_title_to_index = {}
 game_index_to_title = {}
 
@@ -67,6 +69,9 @@ for game in games:
             games_reviews_dict[title] = str(reviews)
         else:
             games_reviews_dict[title] = str(game['Reviews'])
+        
+        blob = TextBlob(games_reviews_dict[title])
+        games_sentiment_dict[title] = blob.sentiment.polarity
 
         if type(game["Plays"]) != str:
             games_players_dict[title] = game["Plays"]/1000
@@ -174,14 +179,14 @@ def cosine_jac_similarity(game_title, req_genre, min_rating, min_players):
     sum_mat = pickle.load(open("sum_mat.pickle", "rb"))
     rev_mat = pickle.load(open("review_mat.pickle", "rb"))
     games_sim_cos_jac = pickle.load(open("game_sims.pickle", "rb"))
-
     ranked_games = get_ranked_games(game_title, req_genre, min_rating, min_players, games_sim_cos_jac)
 
     if (len(ranked_games) > 10):
         top_games = [game[0] for game in ranked_games[:10]]
     else:
         top_games = [game[0] for game in ranked_games]
-    return top_games
+    similarities = [games_sentiment_dict[game] for game in top_games]
+    return (top_games, similarities)
 
 @ app.route("/")
 def home():
@@ -204,11 +209,7 @@ def games_search():
         min_players = float(min_players)
     except:
         pass
-
-    return json.dumps(cosine_jac_similarity(game_name, req_genre, min_rating, min_players))
-    # if len(body) > 0:
-    #     return json.dumps(cosine_jac_similarity(game_name, req_genre, min_rating, min_players))
-    # else:
-    #     return json.dumps(unique_games)
+    top_games, similarities = cosine_jac_similarity(game_name, req_genre, min_rating, min_players)
+    return json.dumps((top_games, similarities))
 
 # app.run(debug=True)

@@ -28,7 +28,7 @@
                 </div>
                 <div id="input-dropdown"></div>
                 <div class="genre-box">
-                    <select class="genre-dropdown" name="genres" id="genres" onclick="deselect()">
+                    <select class="genre-dropdown" name="genres" id="genres">
                         <option value="" disabled selected hidden>Select a genre of interest</option>
                         <option value="Any">Any</option>
                         <option value="Adventure">Adventure</option>
@@ -108,8 +108,8 @@
 
         function answerBoxTemplate(title) {
             return `<div class=''>
-                <h3 class='game-title'>${title}</h3>
-            </div>`
+                        <h3 class='game-title'>${title}</h3>
+                    </div>`
         }
 
         function filterText() {
@@ -130,32 +130,33 @@
                     game_rating: document.getElementById("filter-rating").value,
                     game_players: document.getElementById("filter-popularity").value
                 }).toString()
-            )
-                .then((response) => response.json())
-                .then((data) => {
-                    document.getElementById("loading-screen").removeChild(loader)
-                    document.getElementById("loading-screen").removeChild(loaderText)
-                    if (data.length == 0) {
-                        let noResults = document.createElement("div")
-                        noResults.innerHTML = answerBoxTemplate("There are no games that match your search parameters.")
-                        document.getElementById("answer-box").appendChild(noResults)
+                )
+            .then((response) => response.json())
+            .then((data) => 
+                {
+                document.getElementById("loading-screen").removeChild(loader)
+                document.getElementById("loading-screen").removeChild(loaderText)
+                if (data.length == 0) {
+                    let noResults = document.createElement("div")
+                    noResults.innerHTML = answerBoxTemplate("There are no games that match your search parameters.")
+                    document.getElementById("answer-box").appendChild(noResults)
+                }
+                else if (data !== "Game not found") {
+                    let resultText = document.createElement("h4")
+                    resultText.textContent = "If you like " + document.getElementById("filter-title").value + ", check out these games:"
+                    document.getElementById("loading-screen").appendChild(resultText)
+                        for (let i = 0; i < data[0].length; i++) {
+                        let tempDiv = document.createElement("div")
+                        tempDiv.innerHTML = answerBoxTemplate(data[0][i] + " " + data[1][i])
+                        document.getElementById("answer-box").appendChild(tempDiv)
                     }
-                    else if (data !== "Game not found") {
-                        let resultText = document.createElement("h4")
-                        resultText.textContent = "If you like " + document.getElementById("filter-title").value + ", check out these games:"
-                        document.getElementById("loading-screen").appendChild(resultText)
-                        for (let i = 0; i < data.length; i++) {
-                            let tempDiv = document.createElement("div")
-                            tempDiv.innerHTML = answerBoxTemplate(data[i])
-                            document.getElementById("answer-box").appendChild(tempDiv)
-                        }
-                    }
-                    else {
-                        let gameError = document.createElement("div")
-                        gameError.innerHTML = answerBoxTemplate("Game not found! Please check the game spelling or enter something else!")
-                        document.getElementById("answer-box").appendChild(gameError)
-                    }
-                })
+                }
+                else {
+                    let gameError = document.createElement("div")
+                    gameError.innerHTML = answerBoxTemplate("Game not found! Please check the game spelling or enter something else!")
+                    document.getElementById("answer-box").appendChild(gameError)
+                }
+            })
 
         }
 
