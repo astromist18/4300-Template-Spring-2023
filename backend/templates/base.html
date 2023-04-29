@@ -8,7 +8,6 @@
 <meta charset="UTF-8">
 
 <body>
-    <script src="data.json"></script>
     <div class="full-body-container">
         <div class="top-text">
             <div class="google-colors">
@@ -17,14 +16,17 @@
                 <h1 id="emoji-right">&#128126</h1>
             </div>
             <div class="header">
-                <h3 id="info">Trying to find a new game to play? Look no further! Enter in the information below to find your next favorite game!</h3>
-                <h5 id="filter">Note 1: Minimum rating is from 0 to 5. Minimum players is by the thousand. For example, entering in 3 will return games with at least 3 thousand players</h5>
+                <h3 id="info">Trying to find a new game to play? Look no further! Enter in the information below to find
+                    your next favorite game!</h3>
+                <h5 id="filter">Note 1: Minimum rating is from 0 to 5. Minimum players is by the thousand. For example,
+                    entering in 3 will return games with at least 3 thousand players</h5>
             </div>
             <div id="inputs">
                 <div class="input-box">
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
                     <input placeholder="Input a game that you like" id="filter-title">
                 </div>
+                <div id="input-dropdown"></div>
                 <div class="genre-box">
                     <select class="genre-dropdown" name="genres" id="genres" onclick="deselect()">
                         <option value="" disabled selected hidden>Select a genre of interest</option>
@@ -62,13 +64,54 @@
     </div>
 
     <script>
+        var titles = {{ titles| safe}}
+        console.log(titles)
+
+        const inputBox = document.getElementById('filter-title')
+        inputBox.addEventListener('input', () => showAutoComplete(inputBox.value))
+
+        function showAutoComplete(search) {
+            var matches = []
+            if (search.length >= 3) {
+                matches = titles.filter(title => {
+                    const regex = new RegExp(`^${search}`, 'gi')
+                    return title.match(regex)
+                })
+                console.log('matches: ', matches)
+            } else {
+                matches = []
+            }
+            displayResults(matches)
+        }
+
+        const dropdown = document.getElementById('input-dropdown')
+        function displayResults(matches) {
+            if (matches.length > 0) {
+                const html = matches.map(match =>
+                    `
+                        <div class='results-box' onClick=setInput()>
+                            <h1 id="search-title">${match}</h1>
+                        </div>
+                    `
+                ).join('')
+
+                dropdown.innerHTML = html
+            } else {
+                dropdown.innerHTML = ""
+            }
+        }
+
+        function setInput() {
+            const search_title = document.getElementById('search-title').textContent
+            inputBox.value = search_title
+        }
 
         function answerBoxTemplate(title) {
             return `<div class=''>
                 <h3 class='game-title'>${title}</h3>
             </div>`
         }
-        
+
         function filterText() {
             document.getElementById("answer-box").innerHTML = ""
             document.getElementById("loading-screen").innerHTML = ""
@@ -81,38 +124,38 @@
             document.getElementById("loading-screen").appendChild(loaderText)
 
             fetch("/games?" + new URLSearchParams(
-                {   game_title: document.getElementById("filter-title").value, 
+                {
+                    game_title: document.getElementById("filter-title").value,
                     game_genre: document.getElementById("genres").value,
                     game_rating: document.getElementById("filter-rating").value,
-                    game_players: document.getElementById("filter-popularity").value                
+                    game_players: document.getElementById("filter-popularity").value
                 }).toString()
-                )
-            .then((response) => response.json())
-            .then((data) => 
-                {
-                document.getElementById("loading-screen").removeChild(loader)
-                document.getElementById("loading-screen").removeChild(loaderText)
-                if (data.length == 0) {
-                    let noResults = document.createElement("div")
-                    noResults.innerHTML = answerBoxTemplate("There are no games that match your search parameters.")
-                    document.getElementById("answer-box").appendChild(noResults)
-                }
-                else if (data !== "Game not found") {
-                    let resultText = document.createElement("h4")
-                    resultText.textContent = "If you like " + document.getElementById("filter-title").value + ", check out these games:"
-                    document.getElementById("loading-screen").appendChild(resultText)
-                        for (let i = 0; i < data.length; i++) {
-                        let tempDiv = document.createElement("div")
-                        tempDiv.innerHTML = answerBoxTemplate(data[i])
-                        document.getElementById("answer-box").appendChild(tempDiv)
+            )
+                .then((response) => response.json())
+                .then((data) => {
+                    document.getElementById("loading-screen").removeChild(loader)
+                    document.getElementById("loading-screen").removeChild(loaderText)
+                    if (data.length == 0) {
+                        let noResults = document.createElement("div")
+                        noResults.innerHTML = answerBoxTemplate("There are no games that match your search parameters.")
+                        document.getElementById("answer-box").appendChild(noResults)
                     }
-                }
-                else {
-                    let gameError = document.createElement("div")
-                    gameError.innerHTML = answerBoxTemplate("Game not found! Please check the game spelling or enter something else!")
-                    document.getElementById("answer-box").appendChild(gameError)
-                }
-            })
+                    else if (data !== "Game not found") {
+                        let resultText = document.createElement("h4")
+                        resultText.textContent = "If you like " + document.getElementById("filter-title").value + ", check out these games:"
+                        document.getElementById("loading-screen").appendChild(resultText)
+                        for (let i = 0; i < data.length; i++) {
+                            let tempDiv = document.createElement("div")
+                            tempDiv.innerHTML = answerBoxTemplate(data[i])
+                            document.getElementById("answer-box").appendChild(tempDiv)
+                        }
+                    }
+                    else {
+                        let gameError = document.createElement("div")
+                        gameError.innerHTML = answerBoxTemplate("Game not found! Please check the game spelling or enter something else!")
+                        document.getElementById("answer-box").appendChild(gameError)
+                    }
+                })
 
         }
 

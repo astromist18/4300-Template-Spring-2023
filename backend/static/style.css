@@ -1,11 +1,11 @@
-.full-body-container{
+.full-body-container {
     position: absolute;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
-    width:100%;
-    height:200%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 200%;
     display: flex;
     justify-content: start;
     align-items: center;
@@ -13,18 +13,18 @@
     background-color: rgb(149, 194, 240);
 }
 
-#google-c{
-    color:#156dfb;
+#google-c {
+    color: #156dfb;
 }
 
-.google-colors{
+.google-colors {
     display: flex;
     align-items: center;
     font-size: 48px;
     font-family: 'Open Sans', sans-serif;
 }
 
-.google-colors h1{
+.google-colors h1 {
     margin-bottom: 0;
     margin-right: 3px;
 }
@@ -32,7 +32,7 @@
 .header {
     text-align: center;
     font-family: "Open Sans", sans-serif;
-    color:	#156dfb;
+    color: #156dfb;
 }
 
 #emoji-left {
@@ -43,46 +43,46 @@
     margin-left: 5px;
 }
 
-.input-box{
+.input-box {
     float: left;
     border-radius: 50px;
-    border:1px solid black;
+    border: 1px solid black;
     display: flex;
     align-items: center;
     margin-top: 10px;
     margin-right: 10px;
-    padding:12px;
+    padding: 12px;
     width: 300px;
     padding-right: 12px;
     margin-bottom: 12px;
 }
 
 .genre-box {
-    float:left;
+    float: left;
     display: flex;
     align-items: center;
-    padding:12px;
+    padding: 12px;
 }
 
-.ratings-box{
+.ratings-box {
     float: left;
     border-radius: 50px;
-    border:1px solid black;
+    border: 1px solid black;
     display: flex;
     align-items: center;
     margin-top: 10px;
     margin-right: 10px;
-    padding:12px;
+    padding: 12px;
     width: 150px;
     padding-right: 12px;
 }
 
-.ratings-box img{
+.ratings-box img {
     height: 20px;
-    width:20px;
+    width: 20px;
 }
 
-.ratings-box input{
+.ratings-box input {
     width: 100%;
     margin-left: 10px;
     font-size: 16px;
@@ -92,26 +92,26 @@
     background-color: rgb(149, 194, 240);
 }
 
-.popularity-box{
+.popularity-box {
     float: left;
     border-radius: 50px;
-    border:1px solid black;
+    border: 1px solid black;
     display: flex;
     align-items: center;
     margin-top: 10px;
     margin-right: 10px;
     margin-left: 10px;
-    padding:12px;
+    padding: 12px;
     width: 180px;
     padding-right: 12px;
 }
 
-.popularity-box img{
+.popularity-box img {
     height: 20px;
-    width:20px;
+    width: 20px;
 }
 
-.popularity-box input{
+.popularity-box input {
     width: 100%;
     margin-left: 10px;
     font-size: 16px;
@@ -123,11 +123,11 @@
 
 .genre-dropdown {
     border-radius: 50px;
-    border:1px solid black;
+    border: 1px solid black;
     display: flex;
     align-items: center;
     margin-right: 10px;
-    padding:12px;
+    padding: 12px;
     width: 300px;
     padding-right: 12px;
     font-size: 16px;
@@ -136,21 +136,21 @@
 
 }
 
-.input-box img{
+.input-box img {
     height: 20px;
-    width:20px;
+    width: 20px;
 }
 
 .search-button {
     float: left;
     border-radius: 50px;
-    border:1px solid black;
+    border: 1px solid black;
     display: flex;
     align-items: center;
     margin-top: 10px;
     margin-bottom: 10px;
     margin-right: 10px;
-    padding:12px;
+    padding: 12px;
     width: 100px;
     height: 45px;
     margin-left: 10px;
@@ -159,18 +159,18 @@
 }
 
 .search-button:hover {
-    background-color:#486ac8;
+    background-color: #486ac8;
     transition: 0.5s;
     border: 0px;
 }
 
-.top-text{
+.top-text {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.input-box input{
+.input-box input {
     color: rgb(93, 84, 84);
     width: 100%;
     margin-left: 10px;
@@ -182,7 +182,7 @@
 
 .loading-screen {
     font-family: "Open Sans", sans-serif;
-    color:	#156dfb;
+    color: #156dfb;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -191,25 +191,39 @@
 }
 
 .loader {
-    border: 8px solid #a8a7a7; /* Light grey */
-    border-top: 8px solid #102e42; /* Blue */
+    border: 8px solid #a8a7a7;
+    /* Light grey */
+    border-top: 8px solid #102e42;
+    /* Blue */
     border-radius: 50%;
     width: 60px;
     height: 60px;
     animation: spin 2s linear infinite;
 }
-  
+
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 
-.answer-box{
+.answer-box {
     width: 700px;
 }
 
-.game-title{
+.game-title {
     font-family: 'Kanit', sans-serif;
     color: rgb(93, 84, 84);
+}
+
+.results-box {
+    width: 100%;
+    background: grey;
+    color: white;
+    font-size: 20px;
 }

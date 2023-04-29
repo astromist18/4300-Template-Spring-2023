@@ -185,7 +185,8 @@ def cosine_jac_similarity(game_title, req_genre, min_rating, min_players):
 
 @ app.route("/")
 def home():
-    return render_template('base.html')
+    game_titles = list(game_title_to_index.keys())
+    return render_template('base.html', titles=game_titles)
 
 
 @app.route("/games/")
@@ -203,6 +204,11 @@ def games_search():
         min_players = float(min_players)
     except:
         pass
+
     return json.dumps(cosine_jac_similarity(game_name, req_genre, min_rating, min_players))
+    # if len(body) > 0:
+    #     return json.dumps(cosine_jac_similarity(game_name, req_genre, min_rating, min_players))
+    # else:
+    #     return json.dumps(unique_games)
 
 # app.run(debug=True)
