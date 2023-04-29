@@ -17,7 +17,8 @@
                 <h1 id="emoji-right">&#128126</h1>
             </div>
             <div class="header">
-                <h4 id="info">Trying to find a new game to play? Look no further! Enter in the information below to find your next favorite game!</h4>
+                <h3 id="info">Trying to find a new game to play? Look no further! Enter in the information below to find your next favorite game!</h3>
+                <h5 id="filter">Note 1: Minimum rating is from 0 to 5. Minimum players is by the thousand. For example, entering in 3 will return games with at least 3 thousand players</h5>
             </div>
             <div id="inputs">
                 <div class="input-box">
@@ -25,18 +26,23 @@
                     <input placeholder="Input a game that you like" id="filter-title">
                 </div>
                 <div class="genre-box">
-                    <select class="genre-dropdown" name="genres" id="genres">
+                    <select class="genre-dropdown" name="genres" id="genres" onclick="deselect()">
                         <option value="" disabled selected hidden>Select a genre of interest</option>
+                        <option value="Any">Any</option>
                         <option value="Adventure">Adventure</option>
                         <option value="Brawler">Brawler</option>
+                        <option value="Fighting">Fighting</option>
                         <option value="Indie">Indie</option>
+                        <option value="MOBA">MOBA</option>
                         <option value="Music">Music</option>
                         <option value="Platform">Platform</option>
                         <option value="Puzzle">Puzzle</option>
+                        <option value="Racing">Racing</option>
                         <option value="RPG">RPG</option>
                         <option value="Simulator">Simulator</option>
                         <option value="Shooter">Shooter</option>
                         <option value="Strategy">Strategy</option>
+                        <option value="Tactical">Tactical</option>
                         <option value="Turn">Turn Based Strategy</option>
                     </select>
                 </div>
@@ -62,23 +68,16 @@
                 <h3 class='game-title'>${title}</h3>
             </div>`
         }
-
-        function enterEvent() {
-            document.getElementById("filter-title").addEventListener("keydown", function(event) {
-                event.preventDefault();
-                if (event.keyCode === 13) {
-                    document.getElementById("search").click();
-                }
-            });
-        }
         
         function filterText() {
             document.getElementById("answer-box").innerHTML = ""
+            document.getElementById("loading-screen").innerHTML = ""
+
             let loader = document.createElement("div")
-            loader.className = "loader"
-            document.getElementById("loading-screen").appendChild(loader)
             let loaderText = document.createElement("h4")
+            loader.className = "loader"
             loaderText.textContent = "Loading, please wait"
+            document.getElementById("loading-screen").appendChild(loader)
             document.getElementById("loading-screen").appendChild(loaderText)
 
             fetch("/games?" + new URLSearchParams(
@@ -88,31 +87,34 @@
                     game_players: document.getElementById("filter-popularity").value                
                 }).toString()
                 )
-                .then((response) => response.json())
-                .then((data) => 
-                    {
-                    document.getElementById("loading-screen").removeChild(loader)
-                    document.getElementById("loading-screen").removeChild(loaderText)
+            .then((response) => response.json())
+            .then((data) => 
+                {
+                document.getElementById("loading-screen").removeChild(loader)
+                document.getElementById("loading-screen").removeChild(loaderText)
+                if (data.length == 0) {
+                    let noResults = document.createElement("div")
+                    noResults.innerHTML = answerBoxTemplate("There are no games that match your search parameters.")
+                    document.getElementById("answer-box").appendChild(noResults)
+                }
+                else if (data !== "Game not found") {
                     let resultText = document.createElement("h4")
                     resultText.textContent = "If you like " + document.getElementById("filter-title").value + ", check out these games:"
                     document.getElementById("loading-screen").appendChild(resultText)
-
-                    if (data !== "Game not found") {
-                         for (let i = 0; i < 10; i++) {
-                            let tempDiv = document.createElement("div")
-                            tempDiv.innerHTML = answerBoxTemplate(data[i])
-                            document.getElementById("answer-box").appendChild(tempDiv)
-                        }
-                    }
-                    else {
+                        for (let i = 0; i < data.length; i++) {
                         let tempDiv = document.createElement("div")
-                        tempDiv.innerHTML = answerBoxTemplate("Game not found! Please check the game spelling or enter something else!")
+                        tempDiv.innerHTML = answerBoxTemplate(data[i])
                         document.getElementById("answer-box").appendChild(tempDiv)
                     }
-
-                   })
-
                 }
+                else {
+                    let gameError = document.createElement("div")
+                    gameError.innerHTML = answerBoxTemplate("Game not found! Please check the game spelling or enter something else!")
+                    document.getElementById("answer-box").appendChild(gameError)
+                }
+            })
+
+        }
 
     </script>
 </body>

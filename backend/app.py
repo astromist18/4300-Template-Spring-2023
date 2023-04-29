@@ -37,39 +37,46 @@ unique_games = {}
 
 games_genre_dict = {}
 games_summary_dict = {}
-# games_summary_tokens_dict = {}
 games_reviews_dict = {}
-# games_reviews_tokens_dict = {}
+games_rating_dict = {}
+games_players_dict = {}
 game_title_to_index = {}
 game_index_to_title = {}
 
+genres = set()
 def tokenize(text):
     return [x for x in re.findall(r"[a-z]+", text.lower())]
 
 unique_game_counter = -1
 for game in games:
-    if game["Title"] not in unique_games: 
+    title = game["Title"]
+    if title not in unique_games: 
         unique_game_counter += 1
-        unique_games[game["Title"]] = game
-        games_genre_dict[game["Title"]] = re.findall(r"'([\w\s]+)'", game["Genres"] if type(game["Genres"]) == str else '')
+        unique_games[title] = game
+        games_genre_dict[title] = re.findall(r"'([\w\s]+)'", game["Genres"] if type(game["Genres"]) == str else '')
+        genres.update(games_genre_dict[title])
 
-        game_title_to_index[game["Title"]] = unique_game_counter
-        game_index_to_title[unique_game_counter] = game["Title"]
+        game_title_to_index[title] = unique_game_counter
+        game_index_to_title[unique_game_counter] = title
 
-        games_summary_dict[game["Title"]] = game["Summary"]
+        games_summary_dict[title] = game["Summary"]
         # games_summary_tokens_dict[game["Title"]] = tokenize(game["Summary"])
 
         if type(game['Reviews']) == str:
             reviews = re.sub(r'\[|\]', '', game['Reviews'])
-            games_reviews_dict[game["Title"]] = str(reviews)
+            games_reviews_dict[title] = str(reviews)
         else:
-            games_reviews_dict[game["Title"]] = str(game['Reviews'])
+            games_reviews_dict[title] = str(game['Reviews'])
 
-        # tokens = []
-        # for text in games_reviews_dict[game["Title"]]:
-        #     tokens.append(tokenize(text))
-
-        # games_reviews_tokens_dict[game["Title"]] = tokens
+        if type(game["Plays"]) != str:
+            games_players_dict[title] = game["Plays"]/1000
+        else:
+            games_players_dict[title] = float(re.sub('K?', "", str(game["Plays"])))
+ 
+        if type(game["Rating"]) == str:
+            games_rating_dict[title] = 0.0
+        else:
+            games_rating_dict[title] = float(game["Rating"])
 
 
 n_feats = 500
@@ -86,11 +93,52 @@ def create_summary_mat():
     filename = 'sum_mat.pickle'
     pickle.dump(summary_mat, open(filename, "wb"))
 
+
 def create_reviews_mat():
     tfidf_vec = build_vectorizer(n_feats, "english")
     reviews_mat = tfidf_vec.fit_transform([reviews for reviews in games_reviews_dict.values()]).toarray()
     filename = 'review_mat.pickle'
     pickle.dump(reviews_mat, open(filename, "wb"))
+
+
+def build_game_sims_cos_jac(n_games, game_index_to_title, input_doc_mat, game_title_to_index, input_get_cos_sim_method, input_get_jac_sim_method):
+    # Code from Assignment 5
+    game_sims = np.zeros((n_games, n_games))
+    for i in range(0, n_games):
+        for j in range(i, n_games):
+            game1 = game_index_to_title[i]
+            game2 = game_index_to_title[j]
+            cos_sim = input_get_cos_sim_method(game1, game2, input_doc_mat, game_title_to_index)
+            jac_sim = input_get_jac_sim_method(set(games_genre_dict.get(game1, [])), set(games_genre_dict.get(game2, [])))
+            sim = jac_sim**0.4 + cos_sim*2
+            game_sims[i, j] = game_sims[j, i] = sim
+
+    filename = 'game_sims.pickle'
+    pickle.dump(game_sims, open(filename, "wb"))   
+
+
+def get_ranked_games(game_title, req_genre, min_rating, min_players, sim_matrix):
+    # Code from Assignment 5
+    game_idx = game_title_to_index[game_title]
+    
+    score_lst = sim_matrix[game_idx]
+    game_score_lst = []
+    if (req_genre == "Any"):
+        req_genre = ""
+    for i,s in enumerate(score_lst):
+        query_title = game_index_to_title[i]
+        query_genre = games_genre_dict[query_title]
+        query_rating = games_rating_dict[query_title]
+        query_players = games_players_dict[query_title]
+        if (req_genre == "" or req_genre in query_genre) and (type(min_rating) == str or query_rating >= min_rating) and (type(min_players) == str or query_players >= min_players):
+            game_score_lst.append((query_title, s))
+
+    game_score_lst = game_score_lst[:game_idx] + game_score_lst[game_idx+1:]
+
+    game_score_lst = sorted(game_score_lst, key=lambda x: (-x[1]))
+
+    return game_score_lst
+
 
 def get_cosine_sim(game1, game2, input_doc_mat, input_game_title_to_index):
     # Code from Assignment 5
@@ -104,36 +152,7 @@ def get_cosine_sim(game1, game2, input_doc_mat, input_game_title_to_index):
     
     if np.isnan(sim):
         sim = 0
-
     return sim
-
-def build_game_sims_cos_jac(n_games, game_index_to_title, input_doc_mat, game_title_to_index, input_get_cos_sim_method, input_get_jac_sim_method):
-    # Code from Assignment 5
-    game_sims = np.zeros((n_games, n_games))
-    for i in range(0, n_games):
-        for j in range(i, n_games):
-            game1 = game_index_to_title[i]
-            game2 = game_index_to_title[j]
-            cos_sim = input_get_cos_sim_method(game1, game2, input_doc_mat, game_title_to_index)
-            jac_sim = input_get_jac_sim_method(set(games_genre_dict.get(game1, [])), set(games_genre_dict.get(game2, [])))
-            sim = jac_sim**0.4 + cos_sim*2
-            game_sims[i, j] = game_sims[j, i] = sim
-                
-    return game_sims
-
-
-def get_ranked_games(game, matrix):
-    # Code from Assignment 5
-    game_idx = game_title_to_index[game]
-    
-    score_lst = matrix[game_idx]
-    game_score_lst = [(game_index_to_title[i], s) for i,s in enumerate(score_lst)]
-    
-    game_score_lst = game_score_lst[:game_idx] + game_score_lst[game_idx+1:]
-    
-    game_score_lst = sorted(game_score_lst, key=lambda x: (-x[1]))
-
-    return game_score_lst
 
 
 def jaccard_similarity(s1, s2):
@@ -144,62 +163,46 @@ def jaccard_similarity(s1, s2):
     return len(numerator) / len(denominator)
 
 
-def json_search(game_title):
-    title_results = games_genre_dict.get(game_title, None)
-    results_unranked = list()
-    if title_results == None:
-        return "Game not found"
-    for k, v in games_genre_dict.items():
-        if k != game_title:
-            score = jaccard_similarity(set(title_results), set(v))
-            results_unranked.append((score, k))
-    results = sorted(results_unranked, key=lambda x: x[0], reverse=True)
-    games = [x[1] for x in results]
-    return games
-
-def cosine_jac_similarity(game_title):
+def cosine_jac_similarity(game_title, req_genre, min_rating, min_players):
     if game_title not in unique_games:
         return "Game not found"
 
     # create_summary_mat()
     # create_reviews_mat()
-    
+    # games_sim_cos_jac = build_game_sims_cos_jac(len(unique_games), game_index_to_title, sum_mat, game_title_to_index, get_cosine_sim, jaccard_similarity)
 
     sum_mat = pickle.load(open("sum_mat.pickle", "rb"))
     rev_mat = pickle.load(open("review_mat.pickle", "rb"))
+    games_sim_cos_jac = pickle.load(open("game_sims.pickle", "rb"))
 
-    games_sim_cos_jac = build_game_sims_cos_jac(len(unique_games), game_index_to_title, sum_mat, game_title_to_index, get_cosine_sim, jaccard_similarity)
+    ranked_games = get_ranked_games(game_title, req_genre, min_rating, min_players, games_sim_cos_jac)
 
-    ranked_games = get_ranked_games(game_title, games_sim_cos_jac)
-
-    top_games = [game[0] for game in ranked_games[:10]]
+    if (len(ranked_games) > 10):
+        top_games = [game[0] for game in ranked_games[:10]]
+    else:
+        top_games = [game[0] for game in ranked_games]
     return top_games
 
 @ app.route("/")
 def home():
-    body = request.args.get("game_name")
-    sim = cosine_jac_similarity(body)
-    most_sim = []
-    for i in range(0, 5):
-        most_sim.append(sim[i])
-    if (sim == "Game not found"):
-        most_sim = "This game does not exist in the database"
-        game = ""
-    else:
-        game = "Your game: " + body
-    return render_template('base.html', title="sample html", game=game, similarity=most_sim)
+    return render_template('base.html')
 
 
 @app.route("/games/")
 def games_search():
     body = request.args
-    game_name = body["game_title"]
-    game_genre = body["game_genre"]
-    game_rating = body["game_rating"]
-    game_players = body["game_players"]
-    # don't use filters
-    # get top five features for each result
-
-    return json.dumps(cosine_jac_similarity(game_name))
+    game_name = body.get("game_title")
+    req_genre = body.get("game_genre")
+    min_rating = body.get("game_rating")
+    min_players = body.get("game_players")
+    try:
+        min_rating = float(min_rating)
+    except:
+        pass 
+    try:
+        min_players = float(min_players)
+    except:
+        pass
+    return json.dumps(cosine_jac_similarity(game_name, req_genre, min_rating, min_players))
 
 # app.run(debug=True)
