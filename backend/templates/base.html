@@ -112,6 +112,32 @@
                     </div>`
         }
 
+        function tableTemplate(list1, list2) {
+            let beg = 
+            `<table class='answer-box'>
+                <tr>
+                    <th>Game</th>
+                    <th>Reviews Sentiment</th>
+                </tr>
+            `
+            let temp = ``
+            for (let i = 0; i < list1.length; i++) {
+                temp += 
+                `   <tr>    
+                        <td>${list1[i]}</td>
+                        <td>${list2[i]}</td>
+                    </tr>
+                `
+            }
+
+            let end = 
+            `
+                </tr>
+            </table`
+                    
+            return beg + temp + end
+        }
+
         function filterText() {
             document.getElementById("answer-box").innerHTML = ""
             document.getElementById("loading-screen").innerHTML = ""
@@ -145,11 +171,10 @@
                     let resultText = document.createElement("h4")
                     resultText.textContent = "If you like " + document.getElementById("filter-title").value + ", check out these games:"
                     document.getElementById("loading-screen").appendChild(resultText)
-                        for (let i = 0; i < data[0].length; i++) {
-                        let tempDiv = document.createElement("div")
-                        tempDiv.innerHTML = answerBoxTemplate(data[0][i] + " " + data[1][i])
-                        document.getElementById("answer-box").appendChild(tempDiv)
-                    }
+                    let tempDiv = document.createElement("div")
+                    tempDiv.innerHTML = tableTemplate(data[0], data[1])
+                    document.getElementById("answer-box").appendChild(tempDiv)
+
                 }
                 else {
                     let gameError = document.createElement("div")

@@ -186,7 +186,8 @@ def cosine_jac_similarity(game_title, req_genre, min_rating, min_players):
     else:
         top_games = [game[0] for game in ranked_games]
     similarities = [games_sentiment_dict[game] for game in top_games]
-    return (top_games, similarities)
+    sim_converted = ['🙂🙂' if s >= 0.5 else '🙂' if s > 0.05 else '🙁🙁' if s < -0.5 else '🙁' if s < -0.05 else '😐' for s in similarities]
+    return (top_games, sim_converted)
 
 @ app.route("/")
 def home():
