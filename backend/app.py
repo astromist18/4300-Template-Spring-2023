@@ -106,14 +106,16 @@ def create_reviews_mat():
     pickle.dump(reviews_mat, open(filename, "wb"))
 
 
-def build_game_sims_cos_jac(n_games, game_index_to_title, input_doc_mat, game_title_to_index, input_get_cos_sim_method, input_get_jac_sim_method):
+def build_game_sims_cos_jac(n_games, game_index_to_title, input_sum_doc_mat, input_rev_doc_mat, game_title_to_index, input_get_cos_sim_method, input_get_jac_sim_method):
     # Code from Assignment 5
     game_sims = np.zeros((n_games, n_games))
     for i in range(0, n_games):
         for j in range(i, n_games):
             game1 = game_index_to_title[i]
             game2 = game_index_to_title[j]
-            cos_sim = input_get_cos_sim_method(game1, game2, input_doc_mat, game_title_to_index)
+            sum_cos_sim = input_get_cos_sim_method(game1, game2, input_sum_doc_mat, game_title_to_index)
+            rev_cos_sim = input_get_cos_sim_method(game1, game2, input_rev_doc_mat, game_title_to_index)
+            cos_sim = sum_cos_sim*.6 + rev_cos_sim*.4
             jac_sim = input_get_jac_sim_method(set(games_genre_dict.get(game1, [])), set(games_genre_dict.get(game2, [])))
             sim = jac_sim**0.4 + cos_sim*2
             game_sims[i, j] = game_sims[j, i] = sim
@@ -125,7 +127,7 @@ def build_game_sims_cos_jac(n_games, game_index_to_title, input_doc_mat, game_ti
 def get_ranked_games(game_title, req_genre, min_rating, min_players, sim_matrix):
     # Code from Assignment 5
     game_idx = game_title_to_index[game_title]
-    
+
     score_lst = sim_matrix[game_idx]
     game_score_lst = []
     if (req_genre == "Any"):
@@ -169,17 +171,16 @@ def jaccard_similarity(s1, s2):
 
 
 def cosine_jac_similarity(game_title, req_genre, min_rating, min_players):
-    if game_title not in unique_games:
-        return "Game not found"
-
     # create_summary_mat()
     # create_reviews_mat()
-    # games_sim_cos_jac = build_game_sims_cos_jac(len(unique_games), game_index_to_title, sum_mat, game_title_to_index, get_cosine_sim, jaccard_similarity)
+    # sum_mat = pickle.load(open("sum_mat.pickle", "rb"))
+    # rev_mat = pickle.load(open("review_mat.pickle", "rb"))
 
-    sum_mat = pickle.load(open("sum_mat.pickle", "rb"))
-    rev_mat = pickle.load(open("review_mat.pickle", "rb"))
+    # build_game_sims_cos_jac(len(unique_games), game_index_to_title, sum_mat, rev_mat, game_title_to_index, get_cosine_sim, jaccard_similarity)
     games_sim_cos_jac = pickle.load(open("game_sims.pickle", "rb"))
+
     ranked_games = get_ranked_games(game_title, req_genre, min_rating, min_players, games_sim_cos_jac)
+    print(ranked_games[:10])
 
     if (len(ranked_games) > 10):
         top_games = [game[0] for game in ranked_games[:10]]
@@ -202,6 +203,10 @@ def games_search():
     req_genre = body.get("game_genre")
     min_rating = body.get("game_rating")
     min_players = body.get("game_players")
+
+    if game_name not in unique_games:
+        return json.dumps("Game not found")
+
     try:
         min_rating = float(min_rating)
     except:
