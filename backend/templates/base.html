@@ -21,12 +21,14 @@
                 <h5 id="filter">Note 1: Minimum rating is from 0 to 5. Minimum players is by the thousand. For example,
                     entering in 3 will return games with at least 3 thousand players</h5>
             </div>
-            <div id="inputs">
+            <div id="inputs" class="input">
                 <div class="input-box">
-                    <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                    <input placeholder="Input a game that you like" id="filter-title">
+                    <div class="inner-input">
+                        <img src="{{ url_for('static', filename='images/mag.png') }}" />
+                        <input placeholder="Input a game that you like" class="filter" id="filter-title">
+                    </div>
+                    <div class="input-dropdown" id="input-dropdown"></div>
                 </div>
-                <div id="input-dropdown"></div>
                 <div class="genre-box">
                     <select class="genre-dropdown" name="genres" id="genres">
                         <option value="" disabled selected hidden>Select a genre of interest</option>
@@ -89,21 +91,28 @@
             if (matches.length > 0) {
                 const html = matches.map(match =>
                     `
-                        <div class='results-box' onClick=setInput()>
-                            <h1 id="search-title">${match}</h1>
+                        <div id='${match}' class='results-box'>
+                            <h1 id="inner">${match}</h1>
                         </div>
                     `
                 ).join('')
 
                 dropdown.innerHTML = html
+                matches.map((match, index) => {
+                    let result = document.getElementById(match)
+                    result.addEventListener('click', () => setInput(match))
+                    if (index == matches.length-1) {
+                        result.className = 'last-results-box'
+                    }
+                })
             } else {
                 dropdown.innerHTML = ""
             }
         }
 
-        function setInput() {
-            const search_title = document.getElementById('search-title').textContent
-            inputBox.value = search_title
+        function setInput(match) {
+            inputBox.value = match
+            dropdown.innerHTML = ""
         }
 
         function answerBoxTemplate(title) {

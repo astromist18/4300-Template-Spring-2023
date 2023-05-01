@@ -43,18 +43,49 @@
     margin-left: 5px;
 }
 
-.input-box {
+.input {
+    display: flex;
+    align-items: center;
+}
+
+.inner-input {
     float: left;
     border-radius: 50px;
     border: 1px solid black;
     display: flex;
     align-items: center;
-    margin-top: 10px;
     margin-right: 10px;
     padding: 12px;
-    width: 300px;
+    width: 250px;
     padding-right: 12px;
-    margin-bottom: 12px;
+}
+
+.input-dropdown {
+    position: absolute;
+    margin-top: 46px;
+    margin-left: 20px;
+    
+}
+
+.results-box {
+    padding: 6px;
+    background-color: #36566b;
+    color: rgb(0, 0, 0);
+    font-family: 'Kanit, sans-serif';
+    font-size: 10px;
+    width: 225px;
+}
+
+.last-results-box {
+    padding: 6px;
+    background-color: #36566b;
+    color: rgb(0, 0, 0);
+    font-family: 'Kanit, sans-serif';
+    font-size: 10px;
+    width: 225px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-bottom: 1px solid #36566b;
 }
 
 .genre-box {
@@ -70,7 +101,6 @@
     border: 1px solid black;
     display: flex;
     align-items: center;
-    margin-top: 10px;
     margin-right: 10px;
     padding: 12px;
     width: 150px;
@@ -98,11 +128,10 @@
     border: 1px solid black;
     display: flex;
     align-items: center;
-    margin-top: 10px;
     margin-right: 10px;
     margin-left: 10px;
     padding: 12px;
-    width: 180px;
+    width: 160px;
     padding-right: 12px;
 }
 
@@ -128,7 +157,7 @@
     align-items: center;
     margin-right: 10px;
     padding: 12px;
-    width: 300px;
+    width: 250px;
     padding-right: 12px;
     font-size: 16px;
     color: rgb(93, 84, 84);
@@ -156,6 +185,7 @@
     margin-left: 10px;
     padding-right: 12px;
     background-color: rgb(149, 194, 240);
+    color: rgb(93, 84, 84);
 }
 
 .search-button:hover {
@@ -221,12 +251,6 @@
     color: rgb(93, 84, 84);
 }
 
-.results-box {
-    width: 100%;
-    background: grey;
-    color: white;
-    font-size: 20px;
-}
 
 td {
     text-align: center;
