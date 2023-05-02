@@ -5,6 +5,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
     rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-2.20.0.min.js" charset="utf-8"></script>
 <meta charset="UTF-8">
 
 <body>
@@ -62,12 +63,12 @@
             </div>
         </div>
         <div id="loading-screen" class="loading-screen"></div>
+        <div id="plot-test" class="plot-test"></div>
         <div id="answer-box" class="answer-box"></div>
     </div>
 
     <script>
         var titles = {{ titles| safe}}
-        console.log(titles)
 
         const inputBox = document.getElementById('filter-title')
         inputBox.addEventListener('input', () => showAutoComplete(inputBox.value))
@@ -91,7 +92,7 @@
             if (matches.length > 0) {
                 const html = matches.map(match =>
                     `
-                        <div id='${match}' class='results-box'>
+                        <div id="${match}" class='results-box'>
                             <h1 id="inner">${match}</h1>
                         </div>
                     `
@@ -101,7 +102,7 @@
                 matches.map((match, index) => {
                     let result = document.getElementById(match)
                     result.addEventListener('click', () => setInput(match))
-                    if (index == matches.length-1) {
+                    if (index == matches.length - 1) {
                         result.className = 'last-results-box'
                     }
                 })
@@ -121,35 +122,107 @@
                     </div>`
         }
 
-        function tableTemplate(list1, list2) {
-            let beg = 
-            `<table class='answer-box'>
+        function tableTemplate(list1, list2, list3) {
+            let beg =
+                `<table class='answer-box'>
                 <tr>
                     <th>Game</th>
                     <th>Reviews Sentiment</th>
+                    <th>Top 5 features</th>
                 </tr>
             `
             let temp = ``
             for (let i = 0; i < list1.length; i++) {
-                temp += 
-                `   <tr>    
+                temp +=
+                    `   <tr>    
                         <td>${list1[i]}</td>
                         <td>${list2[i]}</td>
+                        <td>${list3[i]}</td>
                     </tr>
                 `
             }
 
-            let end = 
-            `
+            let end =
+                `
                 </tr>
             </table`
-                    
+
             return beg + temp + end
         }
 
-        function filterText() {
+        async function plot(title, result_titles) {
+            const plot_test = document.getElementById('plot-test')
+            console.log(result_titles)
+            return_data = null
+
+            await fetch("/features?" + new URLSearchParams(
+                {
+                    num_features: 5,
+                    input_title: title,
+                    result_titles: result_titles
+                }
+            ))
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    var layout = {
+                        xaxis: {
+                            autotick: false,
+                            ticks: 'outside',
+                            tick0: 0,
+                            dtick: 0.25,
+                            ticklen: 8,
+                            tickwidth: 4,
+                            tickcolor: '#000'
+                        },
+                        yaxis: {
+                            autotick: false,
+                            ticks: 'outside',
+                            tick0: 0,
+                            dtick: 0.00025,
+                            ticklen: 8,
+                            tickwidth: 4,
+                            tickcolor: '#000'
+                        }
+                    }
+                    return_data = data
+                    // Plotly.newPlot(plot_test, [{
+                    //     x: Object.keys(data[0]),
+                    //     y: Object.values(data[0]),
+                    //     mode: 'markers',
+                    //     type: 'scatter'
+                    // }], layout)
+                })
+            return return_data
+        }
+
+        function createElts(data, features) {
+            let resultText = document.createElement("h4")
+            resultText.textContent = "If you like " + document.getElementById("filter-title").value + ", check out these games:"
+            let inputFeatures = document.createElement("h4")
+            inputFeatures.textContent += "\n Top features for " + document.getElementById("filter-title").value + ": "
+            features[0].forEach(f => {
+                inputFeatures.textContent += f + ", "
+            })
+            inputFeatures.textContent = inputFeatures.textContent.substring(0, inputFeatures.textContent.length - 2)
+            document.getElementById("loading-screen").appendChild(resultText)
+            document.getElementById("loading-screen").appendChild(inputFeatures)
+            let tempDiv = document.createElement("div")
+            tempDiv.innerHTML = tableTemplate(data[0], data[1], features[1])
+            document.getElementById("answer-box").appendChild(tempDiv)
+        }
+
+        async function createCard(data) {
+            console.log(data)
+            features = await plot(document.getElementById("filter-title").value, data[0])
+            console.log(features)
+            createElts(data, features)
+        }
+
+        async function filterText() {
             document.getElementById("answer-box").innerHTML = ""
             document.getElementById("loading-screen").innerHTML = ""
+            document.getElementById("input-dropdown").innerHTML = ""
 
             let loader = document.createElement("div")
             let loaderText = document.createElement("h4")
@@ -165,32 +238,25 @@
                     game_rating: document.getElementById("filter-rating").value,
                     game_players: document.getElementById("filter-popularity").value
                 }).toString()
-                )
-            .then((response) => response.json())
-            .then((data) => 
-                {
-                document.getElementById("loading-screen").removeChild(loader)
-                document.getElementById("loading-screen").removeChild(loaderText)
-                if (data.length == 0) {
-                    let noResults = document.createElement("div")
-                    noResults.innerHTML = answerBoxTemplate("There are no games that match your search parameters.")
-                    document.getElementById("answer-box").appendChild(noResults)
-                }
-                else if (data !== "Game not found") {
-                    let resultText = document.createElement("h4")
-                    resultText.textContent = "If you like " + document.getElementById("filter-title").value + ", check out these games:"
-                    document.getElementById("loading-screen").appendChild(resultText)
-                    let tempDiv = document.createElement("div")
-                    tempDiv.innerHTML = tableTemplate(data[0], data[1])
-                    document.getElementById("answer-box").appendChild(tempDiv)
-
-                }
-                else {
-                    let gameError = document.createElement("div")
-                    gameError.innerHTML = answerBoxTemplate("Game not found! Please check the game spelling or enter something else!")
-                    document.getElementById("answer-box").appendChild(gameError)
-                }
-            })
+            )
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("loading-screen").removeChild(loader)
+                    document.getElementById("loading-screen").removeChild(loaderText)
+                    if (data.length == 0) {
+                        let noResults = document.createElement("div")
+                        noResults.innerHTML = answerBoxTemplate("There are no games that match your search parameters.")
+                        document.getElementById("answer-box").appendChild(noResults)
+                    }
+                    else if (data !== "Game not found") {
+                        createCard(data)
+                    }
+                    else {
+                        let gameError = document.createElement("div")
+                        gameError.innerHTML = answerBoxTemplate("Game not found! Please check the game spelling or enter something else!")
+                        document.getElementById("answer-box").appendChild(gameError)
+                    }
+                })
 
         }
 

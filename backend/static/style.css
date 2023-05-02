@@ -220,6 +220,14 @@
     padding-top: 30px;
 }
 
+.plot-test {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
 .loader {
     border: 8px solid #a8a7a7;
     /* Light grey */

@@ -2,7 +2,6 @@ import json
 import os
 from flask import Flask, render_template, request
 from flask_cors import CORS
-from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
@@ -12,20 +11,6 @@ from textblob import TextBlob
 # ROOT_PATH for linking with all your files.
 # Feel free to use a config.py or settings.py with a global export variable
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
-
-# These are the DB credentials for your OWN MySQL
-# Don't worry about the deployment credentials, those are fixed
-# You can use a different DB name if you want to
-MYSQL_USER = "root"
-MYSQL_USER_PASSWORD = "twitchrecs"
-MYSQL_PORT = 3306
-MYSQL_DATABASE = "video_games"
-
-# mysql_engine = MySQLDatabaseHandler(
-#     MYSQL_USER, MYSQL_USER_PASSWORD, MYSQL_PORT, MYSQL_DATABASE)
-
-# Path to init.sql file. This file can be replaced with your own file for testing on localhost, but do NOT move the init.sql file
-# mysql_engine.load_file_into_db()
 
 app = Flask(__name__)
 CORS(app)
@@ -84,23 +69,22 @@ for game in games:
             games_rating_dict[title] = float(game["Rating"])
 
 
-n_feats = 500
+n_feats = 5000
 doc_by_vocab = np.empty([len(unique_games), n_feats])
 
-def build_vectorizer(max_features, stop_words, max_df=0.8, min_df=10, norm='l2'):
+def build_vectorizer(max_features, stop_words, norm='l2'):
     # Code from Assignment 5
-    return TfidfVectorizer(max_features=max_features, stop_words=stop_words, max_df = max_df, min_df = min_df, norm = norm)
+    return TfidfVectorizer(max_features=max_features, stop_words=stop_words, norm = norm)
 
+tfidf_vec = build_vectorizer(n_feats, "english")
 
 def create_summary_mat():
-    tfidf_vec = build_vectorizer(n_feats, "english")
     summary_mat = tfidf_vec.fit_transform([summary for summary in games_summary_dict.values()]).toarray()
     filename = 'sum_mat.pickle'
     pickle.dump(summary_mat, open(filename, "wb"))
 
 
 def create_reviews_mat():
-    tfidf_vec = build_vectorizer(n_feats, "english")
     reviews_mat = tfidf_vec.fit_transform([reviews for reviews in games_reviews_dict.values()]).toarray()
     filename = 'review_mat.pickle'
     pickle.dump(reviews_mat, open(filename, "wb"))
@@ -180,7 +164,7 @@ def cosine_jac_similarity(game_title, req_genre, min_rating, min_players):
     games_sim_cos_jac = pickle.load(open("game_sims.pickle", "rb"))
 
     ranked_games = get_ranked_games(game_title, req_genre, min_rating, min_players, games_sim_cos_jac)
-    print(ranked_games[:10])
+    # print(ranked_games[:10])
 
     if (len(ranked_games) > 10):
         top_games = [game[0] for game in ranked_games[:10]]
@@ -217,5 +201,55 @@ def games_search():
         pass
     top_games, similarities = cosine_jac_similarity(game_name, req_genre, min_rating, min_players)
     return json.dumps((top_games, similarities))
+
+@app.route("/features/")
+def get_features():
+    body = request.args
+    k = int(body.get("num_features"))
+    input_title = body.get("input_title")
+    result_title_str = body.getlist("result_titles")[0]
+
+    sum_mat = tfidf_vec.fit_transform([summary for summary in games_summary_dict.values()]).toarray()
+    input_doc_idx = game_title_to_index[input_title]
+    feature_array = list(tfidf_vec.get_feature_names())
+
+    # input_title_sum_top_k_tfidf_scores = {}
+    input_title_top_k_tfidf_scores = sorted(sum_mat[input_doc_idx], reverse=True)[:k]
+    used_idx = set()
+    input_title_top_k_features = []
+    print('index: ', input_doc_idx)
+    for top_score in input_title_top_k_tfidf_scores:
+        for idx, score in enumerate(list(sum_mat[input_doc_idx])):
+            if score == top_score and idx not in used_idx:
+                used_idx.add(idx)
+                input_title_top_k_features.append(feature_array[idx])
+                break
+    # input_title_top_k_features = [feature_array[list(sum_mat[input_doc_idx]).index(score)] 
+    #                               for score in input_title_top_k_tfidf_scores]
+    print(input_title_top_k_tfidf_scores)
+    print(input_title_top_k_features)
+    print(list(sum_mat[input_doc_idx]).index(sorted(sum_mat[input_doc_idx], reverse=True)[0]))
+
+    result_titles_top_k_features = []
+    result_titles = result_title_str.split(",")
+    for result_title in result_titles:
+        sum_mat = tfidf_vec.fit_transform([summary for summary in games_summary_dict.values()]).toarray()
+        input_doc_idx = game_title_to_index[result_title]
+        feature_array = list(tfidf_vec.get_feature_names())
+
+        result_title_top_k_tfidf_scores = sorted(sum_mat[input_doc_idx], reverse=True)[:k]
+        used_idx = set()
+        result_title_top_k_features = []
+        print('index: ', input_doc_idx)
+        for top_score in result_title_top_k_tfidf_scores:
+            for idx, score in enumerate(list(sum_mat[input_doc_idx])):
+                if score == top_score and idx not in used_idx:
+                    used_idx.add(idx)
+                    result_title_top_k_features.append(feature_array[idx])
+                    break
+
+        result_titles_top_k_features.append(result_title_top_k_features)
+
+    return [input_title_top_k_features, result_titles_top_k_features]
 
 # app.run(debug=True)
